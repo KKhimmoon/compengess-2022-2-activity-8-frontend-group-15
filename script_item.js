@@ -71,60 +71,134 @@ const showGroupMembers = async () => {
 };
 
 // TODO #2.3: Send Get items ("GET") request to backend server and store the response in itemsData variable
-const getItemsFromDB = async () => {
+const getItemsFromDB = async() => {
   const options = {
-    method: "GET",
-    credentials: "include",
-  }
-  try {
-    const response = await fetch('/get-items'); // Replace '/get-items' with the actual route to the backend server
-    const itemsData = await response.json();
-    console.log(itemsData); // This will log the response from the backend server
-    return itemsData;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-
+  method: "GET",
+  credentials: "include",
+  };
+  await fetch(`http://${backendIPAddress}/items`, options)
+  .then((response) => response.json())
+  .then((data) => {
+  itemsData = data
+  })
+  .catch((error) => console.error(error));
+  }; 
 // TODO #2.4: Show items in table (Sort itemsData variable based on created_date in ascending order)
+// const showItemsInTable = (itemsData) => {
+//   const table_body = document.getElementById("main-table-body");
+//   table_body.innerHTML = "";
+//   // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY ----------------- //
+//   itemsData.sort((a, b) => a.created_date.localeCompare(b.created_date));// addเอง
+//   // ----------------- FILL IN YOUR CODE ABOVE THIS AREA ONLY ----------------- //
+//   itemsData.map((item) => {
+//     // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY ----------------- //
+//     table_body.innerHTML += `
+//         <tr id="${item.item_id}">
+//             <td>${item.item}</td>
+//             <td>Name</td>
+//             <td>Price</td>
+//             <td><button class="delete-row" onclick="deleteItem('${item.item_id}')">ลบ</button></td>
+//         </tr>
+//         `;
+//     // ----------------- FILL IN YOUR CODE ABOVE THIS AREA ONLY ----------------- //
+//   });
+// };
 const showItemsInTable = (itemsData) => {
   const table_body = document.getElementById("main-table-body");
   table_body.innerHTML = "";
-  // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY ----------------- //
-  itemsData.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
-  // ----------------- FILL IN YOUR CODE ABOVE THIS AREA ONLY ----------------- //
+  // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY----------------- //
+  const items = itemsData;
+  items.sort((a, b) => a.created_date < b.created_date);
+  // ----------------- FILL IN YOUR CODE ABOVE THIS AREA ONLY----------------- //
   itemsData.map((item) => {
-    // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY ----------------- //
-    table_body.innerHTML += `
-        <tr id="${item.item_id}">
-            <td>${item.item}</td>
-            <td>Name</td>
-            <td>Price</td>
-            <td><button class="delete-row" onclick="deleteItem('${item.item_id}')">ลบ</button></td>
-        </tr>
-        `;
-    // ----------------- FILL IN YOUR CODE ABOVE THIS AREA ONLY ----------------- //
+  // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY----------------- //
+  table_body.innerHTML += `
+  <tr id="${item.item_id}">
+  <td>${item.item}</td>
+  <td>${item.name}</td>
+  <td>${item.price}</td>
+  <td><button class="delete-row" onclick="deleteItem('${item.
+  item_id}')">ลบ</button></td>
+  </tr>
+  `;
+  // ----------------- FILL IN YOUR CODE ABOVE THIS AREA ONLY----------------- //
   });
-};
+  };
+  
 
 // TODO #2.5: Send Add an item ("POST") request to backend server and update items in the table
-const addItem = async () => {
+// const addItem = async () => {
+//   const item = document.getElementById("item-to-add").value;
+//   const name = document.getElementById("name-to-add").value;
+//   const price = document.getElementById("price-to-add").value;
+//   //เพิ่มเอง
+//   const requestOptions = {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ item: item, name: name, price: price })
+//   };
+
+//   try {
+//     const response = await fetch("/add-item", requestOptions);
+//     const data = await response.json();
+//     updateTable(data);
+//   } catch (error) {
+//     console.error(error);
+//   }
+//   //
+//   console.log(
+//     "This function should fetch 'add item' route from backend server and update items in the table."
+//   );
+// };
+const addItem = async() => {
   const item = document.getElementById("item-to-add").value;
   const name = document.getElementById("name-to-add").value;
   const price = document.getElementById("price-to-add").value;
-
-  console.log(
-    "This function should fetch 'add item' route from backend server and update items in the table."
-  );
-};
+  const memberToAdd = {
+  item: item,
+  name: name,
+  price: price,
+  }
+  const putParams = {
+    TableName: "group_members_19",
+    Item: memberToAdd, // member object to be added
+    ConditionExpression: "attribute_not_exists(student_id)" // addif and only if the student_id not already exists
+    }
+    fetch(`http://${backendIPAddress}/items`, {
+    method: "POST",
+    body: JSON.stringify(memberToAdd),
+    headers: {
+    "Content-type": "application/json; charset=UTF-8"
+    }
+    });
+    // update the member table after successful adding member
+    document.getElementById("add-newrow").addEventListener("click",
+    async function(event) {
+    console.log("Showing group members.");
+    await showGroupMembers();
+    console.log("Showing items from database.");
+    await getItemsFromDB();
+    showItemsInTable(itemsData);
+    })
+    redrawDOM();
+    }
+    
 
 // TODO 2.6: Send Delete an item ("DELETE") request to backend server and update items in the table
-const deleteItem = async (item_id) => {
-  console.log(
-    "This function should fetch 'delete item' route in backend server and update items in the table."
-  );
-};
+const deleteItem = async(item_id) => {
+  const options = {
+  method: "DELETE",
+  credentials: "include",
+  };
+  await fetch(`http://${backendIPAddress}/items/` + item_id, options)
+  .then((response) => response.json())
+  .catch((error) => console.error(error));
+  console.log("Showing group members.");
+  await showGroupMembers();
+  console.log("Showing items from database.");
+  await getItemsFromDB();
+  showItemsInTable(itemsData);
+  };
 
 const redrawDOM = () => {
   window.document.dispatchEvent(
