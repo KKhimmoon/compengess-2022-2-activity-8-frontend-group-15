@@ -2,19 +2,52 @@
 const backendIPAddress = "127.0.0.1:3000";
 
 let itemsData;
-
+const options = {
+  method: "GET",
+  credentials: "include",
+}
 // TODO #2.1: Edit group number
 const getGroupNumber = () => {
-  return 99;
+  return 15;
 };
 
 // TODO #2.2: Show group members
+// const showGroupMembers = async () => {
+//   const member_list = document.getElementById("member-list");
+//   member_list.innerHTML = "";
+//   const member_dropdown = document.getElementById("name-to-add");
+//   member_dropdown.innerHTML =
+//     "<option value='0'>-- เลือกผู้ฝากซื้อ --</option>"
+//   const options = {
+//     method: "GET",
+//     credentials: "include",
+//   };
+//   await fetch(`http://${backendIPAddress}/items/members`, options)
+//     .then((response) => response.json())
+//     .then((data) => {
+//       const members = data;
+//       members.map((member) => {
+//         member_list.innerHTML += `
+//           <li>${member.full_name}</li>
+//           `;
+//         // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY ----------------- //
+//         member_dropdown.innerHTML += `
+//         <option value ="1">Kunanon Laouworawit </option>
+//         <option value ="2">Thammasorn Thammasarangkoon </option>
+//         <option value ="3">Yatawee Boonpeng 	 </option>
+//         <option value ="4">Poopha Suwananek </option>
+//         `;
+//         // ----------------- FILL IN YOUR CODE ABOVE THIS AREA ONLY ----------------- //
+//       });
+//     })
+//     .catch((error) => console.error(error));
+// };
 const showGroupMembers = async () => {
   const member_list = document.getElementById("member-list");
   member_list.innerHTML = "";
   const member_dropdown = document.getElementById("name-to-add");
   member_dropdown.innerHTML =
-    "<option value='0'>-- เลือกผู้ฝากซื้อ --</option>";
+    "<option value='0'>-- เลือกผู้ฝากซื้อ --</option>"
   const options = {
     method: "GET",
     credentials: "include",
@@ -28,7 +61,9 @@ const showGroupMembers = async () => {
           <li>${member.full_name}</li>
           `;
         // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY ----------------- //
-        member_dropdown.innerHTML += ``;
+        member_dropdown.innerHTML += `
+          <option value="${member.full_name}">${member.full_name}</option>
+        `;
         // ----------------- FILL IN YOUR CODE ABOVE THIS AREA ONLY ----------------- //
       });
     })
@@ -37,17 +72,27 @@ const showGroupMembers = async () => {
 
 // TODO #2.3: Send Get items ("GET") request to backend server and store the response in itemsData variable
 const getItemsFromDB = async () => {
-  console.log(
-    "This function should fetch 'get items' route from backend server."
-  );
+  const options = {
+    method: "GET",
+    credentials: "include",
+  }
+  try {
+    const response = await fetch('/get-items'); // Replace '/get-items' with the actual route to the backend server
+    const itemsData = await response.json();
+    console.log(itemsData); // This will log the response from the backend server
+    return itemsData;
+  } catch (error) {
+    console.error(error);
+  }
 };
+
 
 // TODO #2.4: Show items in table (Sort itemsData variable based on created_date in ascending order)
 const showItemsInTable = (itemsData) => {
   const table_body = document.getElementById("main-table-body");
   table_body.innerHTML = "";
   // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY ----------------- //
-
+  itemsData.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
   // ----------------- FILL IN YOUR CODE ABOVE THIS AREA ONLY ----------------- //
   itemsData.map((item) => {
     // ----------------- FILL IN YOUR CODE UNDER THIS AREA ONLY ----------------- //
